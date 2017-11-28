@@ -37,7 +37,7 @@ exports.startDialog = function (bot) {
             session.sendTyping();                    
             if (!isAttachment(session)) {
                 session.dialogData.args = args || {};                        
-                session.send('Welcome to Contoso Bank.');
+                session.send('Welcome to Contoso Bank. You can...');
                 if (!session.conversationData["username"]) {
                     builder.Prompts.text(session, "Enter a username to setup your account.");                
                 } else {
@@ -47,9 +47,7 @@ exports.startDialog = function (bot) {
         },
         function (session, results, next) {
             if (!isAttachment(session)) {
-                session.conversationData["username"] = results.response;                
-                    
-                
+                session.conversationData["username"] = results.response;                   
                 session.send("Welcome %s", session.conversationData["username"]);
                 
             }
@@ -66,21 +64,34 @@ exports.startDialog = function (bot) {
 
     bot.dialog('GetExchangeRate', 
     function (session, args) {
+        session.sendTyping();
         if (!isAttachment(session)) {
-            var currencyEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'currency');
+            exchangeRate.displayExchangeRateCards(session);
+            
+        }
+    }).triggerAction({
+        matches: 'GetExchangeRate'
+    });
+
+    /*
+    bot.dialog('GetExchangeRate', 
+    function (session, args) {
+        session.sendTyping();
+        if (!isAttachment(session)) {
+            var currencyEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'money');
             console.log(currencyEntity);
             //session.dialogData.args.intent.entities or
-            if (true){
-                session.send('Finding exchange rates %s...', "NZD");
-                session.sendTyping();                
-                exchangeRate.displayExchangeRateCards("NZD", session);
+            if (currencyEntity){
+                session.send('Finding exchange rates %s...', currencyEntity.entity);
+                                
+                exchangeRate.displayExchangeRateCards(currencyEntity.entity, session);
             }else{
                 session.send("Error, please try again");
             }
         }
     }).triggerAction({
         matches: 'GetExchangeRate'
-    });
+    });*/
 
 
 
