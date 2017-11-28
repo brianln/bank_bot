@@ -22,6 +22,7 @@ exports.startDialog = function (bot) {
 
 
 
+
     bot.dialog('None', [
     function (session, args) {
         if (!isAttachment(session)) {
@@ -32,12 +33,30 @@ exports.startDialog = function (bot) {
     });
 
     bot.dialog('Welcome', [
-        function (session, args) {
+        function (session, args, next) {
+            session.sendTyping();                    
             if (!isAttachment(session)) {
-                session.send('Welcome to Contoso Bank. What is your name?');
+                session.dialogData.args = args || {};                        
+                session.send('Welcome to Contoso Bank.');
+                if (!session.conversationData["username"]) {
+                    builder.Prompts.text(session, "Enter a username to setup your account.");                
+                } else {
+                    next(); // Skip if we already have this info.
+                }          
+            }
+        },
+        function (session, results, next) {
+            if (!isAttachment(session)) {
+                session.conversationData["username"] = results.response;                
+                    
+                
+                session.send("Welcome %s", session.conversationData["username"]);
                 
             }
-        }]).triggerAction({
+        }
+    
+    
+        ]).triggerAction({
             matches: 'Welcome'
         });
 
@@ -53,6 +72,7 @@ exports.startDialog = function (bot) {
             //session.dialogData.args.intent.entities or
             if (true){
                 session.send('Finding exchange rates %s...', "NZD");
+                session.sendTyping();                
                 exchangeRate.displayExchangeRateCards("NZD", session);
             }else{
                 session.send("Error, please try again");
