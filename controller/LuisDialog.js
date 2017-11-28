@@ -37,7 +37,7 @@ exports.startDialog = function (bot) {
             session.sendTyping();                    
             if (!isAttachment(session)) {
                 session.dialogData.args = args || {};                        
-                session.send('Welcome to Contoso Bank.');
+                session.send('Welcome to Contoso Bank. You can...');
                 if (!session.conversationData["username"]) {
                     builder.Prompts.text(session, "Enter a username to setup your account.");                
                 } else {
@@ -66,6 +66,18 @@ exports.startDialog = function (bot) {
     function (session, args) {
         session.sendTyping();
         if (!isAttachment(session)) {
+            exchangeRate.displayExchangeRateCards(session);
+            
+        }
+    }).triggerAction({
+        matches: 'GetExchangeRate'
+    });
+
+    /*
+    bot.dialog('GetExchangeRate', 
+    function (session, args) {
+        session.sendTyping();
+        if (!isAttachment(session)) {
             var currencyEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'money');
             console.log(currencyEntity);
             //session.dialogData.args.intent.entities or
@@ -79,7 +91,7 @@ exports.startDialog = function (bot) {
         }
     }).triggerAction({
         matches: 'GetExchangeRate'
-    });
+    });*/
 
 
 

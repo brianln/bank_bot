@@ -2,17 +2,24 @@ var rest = require('../API/RestClient');
 var builder = require('botbuilder');
 
 //Calls 'getYelpData' in RestClient.js with 'displayRestaurantCards' as callback to get list of restaurant information
-exports.displayExchangeRateCards = function getRestExchangeRateData(currency, session){
-    var url = "http://apilayer.net/api/live?access_key=2920b9967c834bae312aec9c19b8151e&currencies="+currency+"&format=1";
-    session.send(currency);
-    rest.getRestExchangeRateData(url, session, currency, displayExchangeRateCards);
+exports.displayExchangeRateCards = function getRestExchangeRateData( session){
+    var url = "http://apilayer.net/api/live?access_key=2920b9967c834bae312aec9c19b8151e&currencies=NZD,AUD,GBP,CNY,JPY&format=1";
+    rest.getRestExchangeRateData(url, session, displayExchangeRateCards);
 }
 
-function displayExchangeRateCards(message, session, currency){
+function displayExchangeRateCards(message, session){
     //Parses JSON
     var exchangeJson = JSON.parse(message);
-    var name = ("USD"+currency).toUpperCase();
-    exRate = exchangeJson.quotes[name];
+
+    items = [];
+    for(var i in exchangeJson.quotes){
+        var dict = {}
+        dict.title = i;
+        dict.value = String(exchangeJson.quotes[i]);
+        items.push(dict);
+
+        //console.log(exchangeJson.quotes[i]);
+    }
 
     session.send(new builder.Message(session).addAttachment({
         contentType: "application/vnd.microsoft.card.adaptive",
@@ -26,12 +33,12 @@ function displayExchangeRateCards(message, session, currency){
                     "items": [
                         {
                             "type": "TextBlock",
-                            "text": "$" + currency,
+                            "text": "Exchange Rate" ,
                             "size": "large"
                         },
                         {
                             "type": "TextBlock",
-                            "text": "Exchange Rate"
+                            "text": ""
                         }
                     ]
                 },
@@ -48,7 +55,7 @@ function displayExchangeRateCards(message, session, currency){
                                     "items": [
                                         {
                                             "type": "FactSet",
-                                            "facts": exRate
+                                            "facts": items
                                         }
                                     ]
                                 }
