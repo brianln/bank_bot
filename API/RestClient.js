@@ -6,7 +6,7 @@ exports.getRestExchangeRateData = function getData(url, session, currency, callb
         if(err){
             console.log(err);
         }else {
-            callback(body,session);
+            callback(body, currency, session);
         }
     });
 };
