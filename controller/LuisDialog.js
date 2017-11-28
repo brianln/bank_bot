@@ -1,5 +1,6 @@
 var builder = require('botbuilder');
 var customVision = require("./CustomVision");
+var exchangeRate = require("./ExchangeRate");
 
 // Some sections have been omitted
 function isAttachment(session) { 
@@ -30,6 +31,16 @@ exports.startDialog = function (bot) {
         matches: 'None'
     });
 
+    bot.dialog('Welcome', [
+        function (session, args) {
+            if (!isAttachment(session)) {
+                session.send('Welcome to Contoso Bank. What is your name?');
+                
+            }
+        }]).triggerAction({
+            matches: 'Welcome'
+        });
+
 
 
 
@@ -37,8 +48,15 @@ exports.startDialog = function (bot) {
     bot.dialog('GetExchangeRate', 
     function (session, args) {
         if (!isAttachment(session)) {
-            //session.send('Finding exchange rates %s...', foodEntity.entity);
-            //nutrition.displayNutritionCards(foodEntity.entity, session);
+            var currencyEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'currency');
+            console.log(currencyEntity);
+            //session.dialogData.args.intent.entities or
+            if (true){
+                session.send('Finding exchange rates %s...', "NZD");
+                exchangeRate.displayExchangeRateCards("NZD", session);
+            }else{
+                session.send("Error, please try again");
+            }
         }
     }).triggerAction({
         matches: 'GetExchangeRate'

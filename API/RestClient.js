@@ -1,8 +1,8 @@
 var request = require('request');
 
-exports.getExchangeRateData = function getData(url,bearer,session, callback){
+exports.getRestExchangeRateData = function getData(url, session, currency, callback){
 
-    request.get(url,{'auth': { 'bearer': bearer}} ,function(err,res,body){
+    request.get(url, function processGetRequest(err,res,body){
         if(err){
             console.log(err);
         }else {
