@@ -19,6 +19,7 @@ function displayExchangeRateCards(message, session){
         items.push(dict);
 
         //console.log(exchangeJson.quotes[i]);
+        //ll
     }
 
     session.send(new builder.Message(session).addAttachment({
