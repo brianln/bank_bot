@@ -202,7 +202,7 @@ exports.startDialog = function (bot) {
                 // Checks if the for entity was found
                 if (Entity) {
                     session.send('Deleting \'%s\'...', Entity.entity);
-                    Feedback.deleteFeedback(session,session.conversationData["username"],Entity.entity); //<--- CALLL WE WANT
+                    feedBack.deleteFeedback(session, session.conversationData["username"], Entity.entity); //<--- CALLL WE WANT
                 } else {
                     session.send("No experience identified! Please try again");
                 }
