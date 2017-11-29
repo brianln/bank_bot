@@ -1,12 +1,14 @@
 var builder = require('botbuilder');
 var customVision = require("./CustomVision");
 var exchangeRate = require("./ExchangeRate");
+var feedBack = require("./Feedback");
 
 // Some sections have been omitted
 function isAttachment(session) { 
     var msg = session.message.text;
     if ((session.message.attachments && session.message.attachments.length > 0) || msg.includes("http")) {
         //call custom vision
+        session.sendTyping();                            
         customVision.retreiveMessage(session);
         return true;
     }
@@ -37,9 +39,9 @@ exports.startDialog = function (bot) {
             session.sendTyping();                    
             if (!isAttachment(session)) {
                 session.dialogData.args = args || {};                        
-                session.send('Welcome to Contoso Bank. You can...');
+                session.send('Welcome to Contoso Bank. You can...' + session.conversationData["username"]);
                 if (!session.conversationData["username"]) {
-                    builder.Prompts.text(session, "Enter a username to setup your account.");                
+                    builder.Prompts.text(session, "Enter your full name to setup your account.");                
                 } else {
                     next(); // Skip if we already have this info.
                 }          
@@ -47,7 +49,10 @@ exports.startDialog = function (bot) {
         },
         function (session, results, next) {
             if (!isAttachment(session)) {
-                session.conversationData["username"] = results.response;                   
+                if (session.conversationData["username"] == undefined){
+                    session.conversationData["username"] = results.response;                   
+                }
+                //session.conversationData["username"] = results.response;                   
                 session.send("Welcome %s", session.conversationData["username"]);
                 
             }
@@ -92,6 +97,119 @@ exports.startDialog = function (bot) {
     }).triggerAction({
         matches: 'GetExchangeRate'
     });*/
+
+
+
+
+
+    bot.dialog('GiveFeedback', [
+        function (session, args, next) {
+            session.sendTyping();                    
+            if (!isAttachment(session)) {
+                session.dialogData.args = args || {};                        
+                session.send('Please leave a feedback of your experience.');
+                if (!session.conversationData["username"]) {
+                    builder.Prompts.text(session, "Please confirm your full name.");                
+                } else {
+                    next(); // Skip if we already have this info.
+                }          
+            }
+        },
+        function (session, results, next) {
+            if (!isAttachment(session)) {
+                if(results.response){
+                    session.conversationData["username"] = results.response;
+                }
+                //session.conversationData["username"] = results.response;                   
+                //session.send("What was your overall experience %s?", session.conversationData["username"]);
+                builder.Prompts.text(session, "What was your overall experience "+ session.conversationData["username"] +"?");
+                next();
+            }
+        },
+        function (session, results, next) {
+            if (!isAttachment(session)) {
+                session.conversationData["experience"] = results.response;                   
+                //session.send("What was your overall experience %s?", session.conversationData["username"]);
+                builder.Prompts.text(session, "What was the reason of a "+ session.conversationData["experience"] +" experience?");
+                next();
+            }
+        },
+        function (session, results, next) {
+            if (!isAttachment(session)) {
+                session.conversationData["reason"] = results.response;                   
+                //session.send("What was your overall experience %s?", session.conversationData["username"]);
+                session.sendTyping();                                            
+                feedBack.sendFeedback(session, session.conversationData["username"], session.conversationData["experience"],
+                session.conversationData["reason"]);
+                session.send("Thank you for the feedback.");
+            }
+        }
+    ]).triggerAction({
+        matches: 'GiveFeedback'
+    });
+
+
+
+
+    bot.dialog('GetFeedback', [
+        function (session, args, next) {
+            if (!isAttachment(session)) {
+                session.dialogData.args = args || {};        
+                if (!session.conversationData["username"]) {
+                    builder.Prompts.text(session, "Please confirm your full name.");                
+                } else {
+                    next(); // Skip if we already have this info.
+                }
+            }
+        },
+        function (session, results, next) {
+            if (!isAttachment(session)) {
+                if (results.response) {
+                    session.conversationData["username"] = results.response;
+                }
+
+                session.send("Retrieving your feedback");
+                feedBack.displayFeedback(session, session.conversationData["username"]);  // <---- THIS LINE HERE IS WHAT WE NEED 
+            }
+        }
+    ]).triggerAction({
+        matches: 'GetFeedback'
+    });
+
+
+
+
+    bot.dialog('DeleteFeedback', [
+        function (session, args, next) {
+            if (!isAttachment(session)) {
+                session.dialogData.args = args || {};
+                if (!session.conversationData["username"]) {
+                    builder.Prompts.text(session, "Please confirm your full name.");
+                } else {
+                    next(); // Skip if we already have this info.
+                }
+            }
+        },
+        function (session, results,next) {
+            if (!isAttachment(session)) {
+                //Add this code in otherwise your username will not work.
+                if (results.response) {
+                    session.conversationData["username"] = results.response;
+                }
+                // Pulls out the food entity from the session if it exists
+                var Entity = builder.EntityRecognizer.findEntity(session.dialogData.args.intent.entities, 'experience');
+                console.log(Entity);
+                // Checks if the for entity was found
+                if (Entity) {
+                    session.send('Deleting \'%s\'...', Entity.entity);
+                    Feedback.deleteFeedback(session,session.conversationData["username"],Entity.entity); //<--- CALLL WE WANT
+                } else {
+                    session.send("No experience identified! Please try again");
+                }
+            }
+    }]).triggerAction({
+        matches: 'DeleteFeedback'
+    });
 
 
 
