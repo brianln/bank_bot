@@ -2,6 +2,7 @@ var builder = require('botbuilder');
 var customVision = require("./CustomVision");
 var exchangeRate = require("./ExchangeRate");
 var feedBack = require("./Feedback");
+var qna = require("./QnAMaker");
 
 // Some sections have been omitted
 function isAttachment(session) { 
@@ -53,7 +54,7 @@ exports.startDialog = function (bot) {
                     session.conversationData["username"] = results.response;                   
                 }
                 //session.conversationData["username"] = results.response;                   
-                session.send("Welcome %s", session.conversationData["username"]);
+                session.send("Welcome %s, if you need help, type \'help\'.", session.conversationData["username"]);
                 
             }
         }
@@ -214,15 +215,21 @@ exports.startDialog = function (bot) {
 
 
 
-    bot.dialog('ConvertCurrency', [
-    function (session, args) {
+    bot.dialog('Help', [
+    function (session, args, next) {
         if (!isAttachment(session)) {
-            //
+            session.dialogData.args = args || {};
+            session.conversationData["username"] = null;
+            session.conversationData["experience"] = null;
+            session.conversationData["reason"] = null;
+            builder.Prompts.text(session, "Lets start again! Do you have any general questions about our bank? Perhaps ask about our contact details or opening hours!");
         }
+    },
+    function (session, results, next) {
+            qna.talkToQnA(session, results.response);
     }
-
     ]).triggerAction({
-        matches: 'ConvertCurrency'
+        matches: 'Help'
     });
     
     
