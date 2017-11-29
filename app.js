@@ -1,6 +1,6 @@
 var restify = require('restify');
 var builder = require('botbuilder');
-var luis = require('./controller/LuisDialog');
+var luis = require('../controller/LuisDialog');
 // Some sections have been omitted
 
 
@@ -10,7 +10,6 @@ var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
     console.log('%s listening to %s', server.name, server.url);
 });
-//server.get(/.*/, restify.serveStatic({ 'directory': '.', 'default': 'index.html' }));
 
 
 // Create chat connector for communicating with the Bot Framework Service
@@ -22,6 +21,7 @@ var connector = new builder.ChatConnector({
 // Listen for messages from users 
 server.post('/api/messages', connector.listen());
 
+
 // Receive messages from the user
 var bot = new builder.UniversalBot(connector, function (session) {
 
@@ -29,6 +29,7 @@ var bot = new builder.UniversalBot(connector, function (session) {
 });
 
 bot.set('persistConversationData', true);
+//server.get(/.*/, restify.serveStatic({ 'directory': '.', 'default': 'index.html' }));
 
 
 // This line will call the function in your LuisDialog.js file
