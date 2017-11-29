@@ -39,7 +39,7 @@ exports.startDialog = function (bot) {
             session.sendTyping();                    
             if (!isAttachment(session)) {
                 session.dialogData.args = args || {};                        
-                session.send('Welcome to Contoso Bank. You can...' + session.conversationData["username"]);
+                session.send('Welcome to Contoso Bank.');
                 if (!session.conversationData["username"]) {
                     builder.Prompts.text(session, "Enter your full name to setup your account.");                
                 } else {
