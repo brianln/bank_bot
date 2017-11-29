@@ -1,7 +1,7 @@
 var builder = require('botbuilder');
-var customVision = require("../CustomVision");
-var exchangeRate = require("../ExchangeRate");
-var feedBack = require("../Feedback");
+var customVision = require("./CustomVision");
+var exchangeRate = require("./ExchangeRate");
+var feedBack = require("./Feedback");
 
 // Some sections have been omitted
 function isAttachment(session) { 
